@@ -17,7 +17,7 @@ const char* DEVICE_ID   = "esp32-01";
 
 // Backend Vercel (Telegram + Supabase). Isi setelah deploy.
 // API_KEY harus sama dengan env DEVICE_API_KEY di Vercel. Jangan bagikan project Wokwi ini secara publik.
-const char* API_BASE = "pendeteksi-api-dini-web.vercel.app";
+const char* API_BASE = "https://pendeteksi-api-dini-web.vercel.app";
 const char* API_KEY  = "924bfc4e04d20c543b34e1b10fc8bda98359ab641d1b4eb9";
 
 // Ganti suffix agar topik unik di broker publik (samakan dengan flow Node-RED)
@@ -143,7 +143,10 @@ bool postApi(const char* path) {
   HTTPClient http;
   http.setConnectTimeout(3000);
   http.setTimeout(4000);
-  if (!http.begin(secure, String(API_BASE) + path)) return false;
+  if (!http.begin(secure, String(API_BASE) + path)) {
+    Serial.printf("[HTTP] begin gagal, cek API_BASE (harus diawali https://): %s\n", API_BASE);
+    return false;
+  }
   http.addHeader("Content-Type", "application/json");
   http.addHeader("x-api-key", API_KEY);
   int code = http.POST(body);
