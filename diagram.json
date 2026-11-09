@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "author": "Farel Wisnu Pratama",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -105, "left": 148.2, "attrs": {} },
+    { "type": "wokwi-gas-sensor", "id": "gas1", "top": -150, "left": -190, "attrs": {} },
+    { "type": "wokwi-photoresistor-sensor", "id": "ldr1", "top": 20, "left": -230, "attrs": {} },
+    { "type": "wokwi-pushbutton", "id": "btnReset", "top": 200, "left": -150, "attrs": { "color": "blue", "label": "RESET" } },
+    { "type": "wokwi-led", "id": "ledRed", "top": 250, "left": 190, "attrs": { "color": "red" } },
+    { "type": "wokwi-led", "id": "ledGreen", "top": 250, "left": 240, "attrs": { "color": "green" } },
+    { "type": "wokwi-buzzer", "id": "bz1", "top": 230, "left": 300, "attrs": { "volume": "0.1" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "dht1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "dht1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "dht1:SDA", "esp:15", "green", [ "v0" ] ],
+
+    [ "gas1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "gas1:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "gas1:AOUT", "esp:35", "orange", [ "v0" ] ],
+
+    [ "ldr1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "ldr1:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "ldr1:AO", "esp:34", "yellow", [ "v0" ] ],
+
+    [ "btnReset:1.l", "esp:4", "blue", [ "v0" ] ],
+    [ "btnReset:2.l", "esp:GND.1", "black", [ "v0" ] ],
+
+    [ "ledRed:A", "esp:26", "red", [ "v0" ] ],
+    [ "ledRed:C", "esp:GND.2", "black", [ "v0" ] ],
+
+    [ "ledGreen:A", "esp:27", "green", [ "v0" ] ],
+    [ "ledGreen:C", "esp:GND.2", "black", [ "v0" ] ],
+
+    [ "bz1:2", "esp:25", "purple", [ "v0" ] ],
+    [ "bz1:1", "esp:GND.2", "black", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}

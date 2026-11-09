@@ -1,0 +1,30 @@
+[
+  {"id":"tab1","type":"tab","label":"Deteksi Kebakaran Dini","disabled":false,"info":""},
+  {"id":"broker1","type":"mqtt-broker","name":"HiveMQ Public","broker":"broker.hivemq.com","port":"1883","clientid":"","autoConnect":true,"usetls":false,"protocolVersion":"4","keepalive":"60","cleansession":true},
+  {"id":"uitab","type":"ui_tab","name":"Kebakaran","icon":"dashboard","order":1},
+  {"id":"uigrp","type":"ui_group","name":"Monitoring","tab":"uitab","order":1,"disp":true,"width":"9","collapse":false},
+  {"id":"bot1","type":"telegram bot","botname":"ISI_NAMA_BOT","usernames":"","chatids":"","baseapiurl":"","testenvironment":false,"updatemode":"polling","pollinterval":"300","usesocks":false,"sockshost":"","socksprotocol":"socks5","socksport":"6667","socksusername":"anonymous","sockspassword":"","bothost":"","botpath":"","localbotport":"8443","publicbotport":"8443","privatekey":"","certificate":"","useselfsignedcertificate":false,"sslterminated":false,"verboselogging":false},
+
+  {"id":"inTele","type":"mqtt in","z":"tab1","name":"telemetry","topic":"kampus/iot/kebakaran/telemetry","qos":"0","datatype":"json","broker":"broker1","x":120,"y":120,"wires":[["gTemp","gHum","gSmoke","gFlame","cTemp","cSmoke","cFlame"]]},
+  {"id":"gTemp","type":"ui_gauge","z":"tab1","name":"Suhu","group":"uigrp","order":1,"width":3,"height":3,"gtype":"gage","title":"Suhu","label":"°C","format":"{{msg.payload.temperature}}","min":0,"max":100,"colors":["#00b500","#e6e600","#ca3838"],"seg1":"45","seg2":"50","x":340,"y":40,"wires":[]},
+  {"id":"gHum","type":"ui_gauge","z":"tab1","name":"Kelembapan","group":"uigrp","order":2,"width":3,"height":3,"gtype":"gage","title":"Kelembapan","label":"%","format":"{{msg.payload.humidity}}","min":0,"max":100,"colors":["#00b500","#e6e600","#ca3838"],"seg1":"","seg2":"","x":350,"y":80,"wires":[]},
+  {"id":"gSmoke","type":"ui_gauge","z":"tab1","name":"Asap","group":"uigrp","order":3,"width":3,"height":3,"gtype":"gage","title":"Asap (sensor gas)","label":"%","format":"{{msg.payload.smoke}}","min":0,"max":100,"colors":["#00b500","#e6e600","#ca3838"],"seg1":"40","seg2":"60","x":340,"y":120,"wires":[]},
+  {"id":"gFlame","type":"ui_gauge","z":"tab1","name":"Api","group":"uigrp","order":4,"width":3,"height":3,"gtype":"gage","title":"Api (LDR)","label":"%","format":"{{msg.payload.flame}}","min":0,"max":100,"colors":["#00b500","#e6e600","#ca3838"],"seg1":"50","seg2":"70","x":330,"y":160,"wires":[]},
+
+  {"id":"cTemp","type":"change","z":"tab1","name":"suhu -> chart","rules":[{"t":"set","p":"topic","pt":"msg","to":"Suhu","tot":"str"},{"t":"set","p":"payload","pt":"msg","to":"payload.temperature","tot":"msg"}],"x":340,"y":220,"wires":[["chart1"]]},
+  {"id":"cSmoke","type":"change","z":"tab1","name":"asap -> chart","rules":[{"t":"set","p":"topic","pt":"msg","to":"Asap","tot":"str"},{"t":"set","p":"payload","pt":"msg","to":"payload.smoke","tot":"msg"}],"x":340,"y":260,"wires":[["chart1"]]},
+  {"id":"cFlame","type":"change","z":"tab1","name":"api -> chart","rules":[{"t":"set","p":"topic","pt":"msg","to":"Api","tot":"str"},{"t":"set","p":"payload","pt":"msg","to":"payload.flame","tot":"msg"}],"x":340,"y":300,"wires":[["chart1"]]},
+  {"id":"chart1","type":"ui_chart","z":"tab1","name":"Tren","group":"uigrp","order":5,"width":9,"height":4,"label":"Tren Suhu, Asap & Api","chartType":"line","legend":"true","xformat":"HH:mm:ss","interpolate":"linear","nodata":"menunggu data","dot":false,"ymin":"0","ymax":"100","removeOlder":"10","removeOlderPoints":"","removeOlderUnit":"60","cutout":0,"useOneColor":false,"useUTC":false,"colors":["#1f77b4","#ff7f0e","#d62728"],"outputs":1,"useDifferentColor":false,"x":540,"y":260,"wires":[[]]},
+
+  {"id":"inStatus","type":"mqtt in","z":"tab1","name":"status","topic":"kampus/iot/kebakaran/status","qos":"0","datatype":"json","broker":"broker1","x":110,"y":400,"wires":[["txtStatus","txtBuzzer","logEvt"]]},
+  {"id":"txtStatus","type":"ui_text","z":"tab1","group":"uigrp","order":6,"width":3,"height":1,"name":"Status alarm","label":"Status","format":"{{msg.payload.status}}","layout":"row-spread","x":340,"y":380,"wires":[]},
+  {"id":"txtBuzzer","type":"ui_text","z":"tab1","group":"uigrp","order":7,"width":3,"height":1,"name":"Buzzer","label":"Buzzer","format":"{{msg.payload.buzzer ? 'ON' : 'OFF'}}","layout":"row-spread","x":330,"y":420,"wires":[]},
+  {"id":"logEvt","type":"ui_text","z":"tab1","group":"uigrp","order":9,"width":9,"height":1,"name":"Log terakhir","label":"Log","format":"{{msg.payload.status}} @ {{msg.payload.ts_ms}} ms","layout":"row-spread","x":340,"y":460,"wires":[]},
+
+  {"id":"btnReset","type":"ui_button","z":"tab1","name":"Reset alarm","group":"uigrp","order":8,"width":3,"height":1,"label":"Reset Alarm","tooltip":"","color":"","bgcolor":"","icon":"","payload":"reset","payloadType":"str","topic":"","x":110,"y":540,"wires":[["outCmd"]]},
+  {"id":"outCmd","type":"mqtt out","z":"tab1","name":"command","topic":"kampus/iot/kebakaran/command","qos":"0","retain":"false","broker":"broker1","x":330,"y":540,"wires":[]},
+
+  {"id":"inAlert","type":"mqtt in","z":"tab1","name":"alert","topic":"kampus/iot/kebakaran/alert","qos":"0","datatype":"json","broker":"broker1","x":110,"y":640,"wires":[["fmtTg"]]},
+  {"id":"fmtTg","type":"function","z":"tab1","name":"format Telegram","func":"// Ganti CHAT_ID lewat env Node-RED (TG_CHAT_ID), jangan hardcode di repo publik\nconst chatId = env.get('TG_CHAT_ID') || 'ISI_CHAT_ID';\nconst p = msg.payload;\nmsg.payload = {\n  chatId: chatId,\n  type: 'message',\n  content: `🔥 POTENSI KEBAKARAN TERDETEKSI\\nPerangkat: ${p.device}\\nSuhu: ${p.temperature} °C\\nAsap (gas): ${p.smoke}%\\nApi (LDR): ${p.flame}%\\nStatus: ${p.status}`\n};\nreturn msg;","outputs":1,"x":330,"y":640,"wires":[["tgSend"]]},
+  {"id":"tgSend","type":"telegram sender","z":"tab1","name":"Kirim Telegram","bot":"bot1","haserroroutput":false,"outputs":1,"x":550,"y":640,"wires":[[]]}
+]
